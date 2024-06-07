@@ -1,0 +1,113 @@
+[data-type="synonym-view"] > .view-content {
+  padding: 0px;
+  
+  .nav-header .search-row {
+    margin: 0px;
+  }
+  .search-input-container {
+    width: 100%;
+  }
+}
+
+.synonym-plugin {
+  padding: 8px 16px 12px;
+  overflow: auto;
+
+  :is(.syn-heading, .syn-info, .syn-intro, .syn-none, .syn-button) {
+    margin: 16px 0 8px;
+  }
+
+  :is(.syn-lookup, .syn-title) {
+    margin-bottom: 8px;
+  }
+
+  .syn-title {
+    color: var(--color-orange);
+    font-size: 1.1em;
+  }
+  
+  .syn-intro {
+    color: var(--text-muted);
+  }
+  
+  :is(.syn-def, .syn-ex) {
+    margin: 4px 0 8px;
+    user-select: text !important;
+    -webkit-user-select: text !important;
+  }
+  .syn-def {
+    color: var(--text-muted);
+    counter-increment: part 1;
+    margin-left: 1.3em;
+    padding: 2px;
+    text-indent: -1em;
+    &::before {
+      content: counter(part) ". ";
+    }
+  }
+  .syn-ex {
+    color: var(--text-faint);
+    font-size: var(--font-smaller);
+    margin-left: 1.2em;
+  }
+  .syn-button {
+    color: var(--text-muted);
+    width: 100%;
+    &:hover {
+      color: var(--text-normal);
+    }
+  }
+  
+  .syn-lookup {
+    color: var(--text-normal);
+    font-size: 1.3em;
+    padding: 4px 4px 4px 8px;
+    /* background-color: var(--background-modifier-active-hover); */
+    border: 1px solid var(--background-modifier-border-hover);
+    border-radius: 4px;
+    &:hover {
+      border-color: var(--background-modifier-border-focus);
+    }
+  }
+  
+  .syn-info {
+    color: var(--text-muted);
+    margin-bottom: 2em;
+    white-space: pre-line;
+  }
+  .syn-heading {
+    color: var(--color-orange);
+    counter-reset: part 0;
+    font-family: var(--font-interface);
+    span {
+      padding: 0 8px;
+      --icon-size: var(--icon-l);
+      --icon-stroke: var(--icon-l-stroke-width);
+    }
+  }
+  
+  .syn-none {
+    color: var(--text-faint);
+    &:after {
+      content: "None";
+      font-size: 0.7em;
+      margin-left: 0.5em;
+      vertical-align: super;
+    }
+  }
+  
+  .syn-word {
+    color: var(--text-muted);
+    display: inline-block;
+    padding: 4px 8px;
+  }
+  
+  :is(.syn-def, .syn-word, .syn-def:before) {
+    &:hover {
+      color: var(--text-normal);
+      background: var(--interactive-accent-hover);
+      border-radius: 4px;
+    }
+  }
+}
+
