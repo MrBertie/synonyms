@@ -1,20 +1,29 @@
-[data-type="synonym-view"] > .view-content {
-  padding: 0px;
-  
-  .nav-header .search-row {
-    margin: 0px;
-  }
-  .search-input-container {
+[data-type="synonym-view"] {
+  .search-row .search-input-container {
     width: 100%;
+  }
+  .syn-active-word {
+    font-size: var(--font-ui-medium);
+    color: var(--text-accent);
+    border-color: var(--background-modifier-border-focus);
+  }
+  .syn-cursor-icon {
+    width: 40px;
+    &:hover {
+      background-color: var(--background-modifier-active-hover);
+      border: 1px solid var(--background-modifier-border-hover);
+    }
   }
 }
 
-.synonym-plugin {
-  padding: 8px 16px 12px;
-  overflow: auto;
+.syn {
+  padding: 4px 16px 32px !important;
 
-  :is(.syn-heading, .syn-info, .syn-intro, .syn-none, .syn-button) {
+  :is(.syn-heading, .syn-info, .syn-none) {
     margin: 16px 0 8px;
+  }
+  .syn-heading:first-of-type {
+    margin-top: 0px;
   }
 
   :is(.syn-lookup, .syn-title) {
@@ -28,6 +37,19 @@
   
   .syn-intro {
     color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  ul.syn-help {
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 4px;
+    padding: 8px;
+    padding-inline-start: 27px;
+    li {
+      color: var(--text-muted);
+      font-size: var(--font-smaller);
+      padding: 4px;
+    }
   }
   
   :is(.syn-def, .syn-ex) {
@@ -38,7 +60,7 @@
   .syn-def {
     color: var(--text-muted);
     counter-increment: part 1;
-    margin-left: 1.3em;
+    margin-left: 1em;
     padding: 2px;
     text-indent: -1em;
     &::before {
@@ -48,33 +70,20 @@
   .syn-ex {
     color: var(--text-faint);
     font-size: var(--font-smaller);
-    margin-left: 1.2em;
-  }
-  .syn-button {
-    color: var(--text-muted);
-    width: 100%;
-    &:hover {
-      color: var(--text-normal);
-    }
+    margin-left: 1.25em;
   }
   
-  .syn-lookup {
-    color: var(--text-normal);
-    font-size: 1.3em;
-    padding: 4px 4px 4px 8px;
-    /* background-color: var(--background-modifier-active-hover); */
-    border: 1px solid var(--background-modifier-border-hover);
-    border-radius: 4px;
-    &:hover {
-      border-color: var(--background-modifier-border-focus);
-    }
+  .syn-results {
+    margin-bottom: 1.3em;
+    max-height: inherit;
   }
-  
+
   .syn-info {
     color: var(--text-muted);
     margin-bottom: 2em;
     white-space: pre-line;
   }
+
   .syn-heading {
     color: var(--color-orange);
     counter-reset: part 0;
@@ -105,7 +114,7 @@
   :is(.syn-def, .syn-word, .syn-def:before) {
     &:hover {
       color: var(--text-normal);
-      background: var(--interactive-accent-hover);
+      background: var(--background-modifier-active-hover);
       border-radius: 4px;
     }
   }
