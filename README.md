@@ -12,9 +12,11 @@ You will need to go to the *Plugin Settings* page in Obsidian and enable the plu
 
 Place the cursor in a word and click the `Find word at cursor` button beside the search box.  The result will be listed in the sidebar.
 
-**Manual serch.**  You can also type a word or phrase directly into the search box and press `Enter`.
+**Manual search.**  You can also type a word or phrase directly into the search box and press `Enter`.
 
 **Reset search.**  Click to the clear search box cross to reset the display.
+
+The sidebar keeps a history of all recent words, click on any word to reload that meaning.
 
 ## Copying
 

@@ -8,8 +8,9 @@
     border-color: var(--background-modifier-border-focus);
   }
   .syn-cursor-icon {
-    width: 40px;
+    width: 50px;
     &:hover {
+      color: var(--text-normal);
       background-color: var(--background-modifier-active-hover);
       border: 1px solid var(--background-modifier-border-hover);
     }
@@ -22,63 +23,58 @@
   :is(.syn-heading, .syn-info, .syn-none) {
     margin: 16px 0 8px;
   }
-  .syn-heading:first-of-type {
-    margin-top: 0px;
+
+  .syn-history {
+    margin: 4px 0 20px;
+    span {
+      color: var(--text-muted);
+      font-size: var(--font-ui-smaller);
+      padding: 6px 8px 6px 8px;
+    }
   }
 
-  :is(.syn-lookup, .syn-title) {
-    margin-bottom: 8px;
-  }
-
-  .syn-title {
-    color: var(--color-orange);
-    font-size: 1.1em;
-  }
-  
-  .syn-intro {
-    color: var(--text-muted);
-    margin-bottom: 8px;
-  }
-
-  ul.syn-help {
+  .syn-help {
     border: 1px solid var(--background-modifier-border);
     border-radius: 4px;
+    color: var(--text-muted);
+    font-size: var(--font-smaller);
     padding: 8px;
-    padding-inline-start: 27px;
-    li {
-      color: var(--text-muted);
-      font-size: var(--font-smaller);
-      padding: 4px;
+    padding-left: 12px;
+    ul {
+      margin: 4px 0px;
+      padding-inline-start: 1.8em;
+      li {
+        color: var(--text-muted);
+        list-style-position: outside;
+        padding: 4px 0px;
+      }
+    }
+    .clear-history:hover {
+      color: var(--text-normal);
     }
   }
   
-  :is(.syn-def, .syn-ex) {
+  .syn-show-help {
+    border-top: 1px solid var(--background-modifier-border);
+    color: var(--text-muted);
+    padding: 8px;
+    &:hover {
+      color: var(--text-normal);
+    }
+  }
+
+  :is(.syn-definition, .syn-example) {
     margin: 4px 0 8px;
     user-select: text !important;
     -webkit-user-select: text !important;
   }
-  .syn-def {
-    color: var(--text-muted);
-    counter-increment: part 1;
-    margin-left: 1em;
-    padding: 2px;
-    text-indent: -1em;
-    &::before {
-      content: counter(part) ". ";
-    }
-  }
-  .syn-ex {
-    color: var(--text-faint);
-    font-size: var(--font-smaller);
-    margin-left: 1.25em;
-  }
-  
+
   .syn-results {
     margin-bottom: 1.3em;
     max-height: inherit;
   }
-
-  .syn-info {
+  
+  .syn-searching {
     color: var(--text-muted);
     margin-bottom: 2em;
     white-space: pre-line;
@@ -93,8 +89,51 @@
       --icon-size: var(--icon-l);
       --icon-stroke: var(--icon-l-stroke-width);
     }
+    &:first-of-type {
+      margin-top: 0px;
+    }
   }
   
+  :is(.syn-word, .syn-history span) {
+    display: inline-block;
+  }
+
+  .syn-word {
+    color: var(--text-muted);
+    display: inline-block;
+    padding: 4px 8px 6px;
+  }
+
+  .syn-more {
+    color: var(--text-muted);
+    height: 28px;
+    margin-left: 8px;
+  }
+  
+  :is(.syn-word, .syn-more, .syn-definition, .syn-definition:before, .syn-history span) {
+    &:hover {
+      color: var(--text-normal);
+      background: var(--background-modifier-active-hover);
+      border-radius: 4px;
+    }
+  }
+  .syn-definition {
+    color: var(--text-muted);
+    counter-increment: part 1;
+    margin-left: 1em;
+    padding: 2px;
+    text-indent: -1em;
+    &::before {
+      content: counter(part) ". ";
+    }
+  }
+
+  .syn-example {
+    color: var(--text-faint);
+    font-size: var(--font-smaller);
+    margin-left: 1.25em;
+  }
+
   .syn-none {
     color: var(--text-faint);
     &:after {
@@ -102,20 +141,6 @@
       font-size: 0.7em;
       margin-left: 0.5em;
       vertical-align: super;
-    }
-  }
-  
-  .syn-word {
-    color: var(--text-muted);
-    display: inline-block;
-    padding: 4px 8px;
-  }
-  
-  :is(.syn-def, .syn-word, .syn-def:before) {
-    &:hover {
-      color: var(--text-normal);
-      background: var(--background-modifier-active-hover);
-      border-radius: 4px;
     }
   }
 }
