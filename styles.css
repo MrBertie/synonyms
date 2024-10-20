@@ -18,7 +18,7 @@
 }
 
 .syn {
-  padding: 4px 16px 32px !important;
+  padding: 4px 12px 32px 16px!important;
 
   :is(.syn-heading, .syn-info, .syn-none) {
     margin: 16px 0 8px;
@@ -33,15 +33,29 @@
     }
   }
 
-  .syn-help {
-    border: 1px solid var(--background-modifier-border);
-    border-radius: 4px;
+  details {
+    border-top: 1px solid var(--background-modifier-border);
     color: var(--text-muted);
     font-size: var(--font-smaller);
-    padding: 8px;
-    padding-left: 12px;
+    padding: 6px 8px 8px 12px;
+  }
+  
+  summary {
+    color: var(--text-muted);
+    &:hover {
+      color: var(--text-normal);
+    }
+  }
+  
+  details[open] {
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 4px;
+    padding-left: 11px;
+    p {
+      margin: 8px 0 4px;
+    }
     ul {
-      margin: 4px 0px;
+      margin: 0px;
       padding-inline-start: 1.8em;
       li {
         color: var(--text-muted);
@@ -49,18 +63,10 @@
         padding: 4px 0px;
       }
     }
-    .clear-history:hover {
-      color: var(--text-normal);
-    }
   }
   
-  .syn-show-help {
-    border-top: 1px solid var(--background-modifier-border);
-    color: var(--text-muted);
-    padding: 8px;
-    &:hover {
-      color: var(--text-normal);
-    }
+  .clear-history:hover {
+    color: var(--text-normal);
   }
 
   :is(.syn-definition, .syn-example) {
@@ -76,6 +82,7 @@
   
   .syn-searching {
     color: var(--text-muted);
+    font-size: var(--font-smaller);
     margin-bottom: 2em;
     white-space: pre-line;
   }

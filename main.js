@@ -40,7 +40,7 @@ const Lang = {
   insertWordTxt: 'Click a synonym, antonym, or similar meaning to replace the word at the cursor',
   copyDefinitionTxt: 'Click a dictionary definition to copy it to the clipboard',
   clearTxt: 'Click here to clear the search history.',
-  expandHelp: 'Help…',
+  help: 'Help',
 };
 
 const DEFAULT_SETTINGS = {
@@ -177,34 +177,16 @@ class SynonymSidebarView extends ItemView {
 
     const historyEl = introEl.createEl('div', { cls: 'syn-history'});
     this.historyEl = historyEl;
-   
-    const expandHelpEl = introEl.createEl('div', { cls: 'syn-show-help' });
-    setIcon(expandHelpEl, 'help');
-    setTooltip(expandHelpEl, Lang.expandHelp, { placement: 'left' });
-    this.expandHelpEl = expandHelpEl;
-
-    const helpEl = introEl.createDiv({ text: Lang.intro, cls: 'syn-help'});
-    const listEl = helpEl.createEl('ul');
-    listEl.createEl('li', { text: Lang.findCursorTxt });
-    listEl.createEl('li', { text: Lang.insertWordTxt });
-    listEl.createEl('li', { text: Lang.copyDefinitionTxt });
-    const wipeEl = listEl.createEl('li', { text: Lang.clearTxt , cls: 'clear-history' });
-    listEl.createEl('li').innerHTML = Lang.source1;
-    listEl.createEl('li').innerHTML = Lang.source2;
-    setTooltip(helpEl, Lang.hideTip);
-    this.helpEl = helpEl;
-
-    this.expandHelp(this.helpExpanded);
-
+    
     // SYNONYM VIEW
     const searchingEl = this.contentEl.createDiv({
       text: Lang.searchingSyn,
       cls: 'syn-searching',
     });
     searchingEl.hide();
-
+    
     const synonymEl = this.contentEl.createDiv({ cls: 'syn-results'});
-
+    
     // DEFINITION VIEW
     const searchingDefEl = this.contentEl.createDiv({
       text: Lang.searchingDef,
@@ -213,6 +195,20 @@ class SynonymSidebarView extends ItemView {
     searchingDefEl.hide();
 
     const definitionEl = this.contentEl.createDiv({ cls: 'syn-results'});
+
+    // HELP TOGGLE
+    const detailsEl = createEl('details');
+    detailsEl.createEl('summary', { text: Lang.help });
+    detailsEl.createEl('p', { text: Lang.intro });
+    const detailEl = detailsEl.createEl('ul');
+    detailEl.createEl('li', { text: Lang.findCursorTxt });
+    detailEl.createEl('li', { text: Lang.insertWordTxt });
+    detailEl.createEl('li', { text: Lang.copyDefinitionTxt });
+    const wipeEl = detailEl.createEl('li', { text: Lang.clearTxt, cls: 'clear-history' });
+    detailEl.createEl('li').innerHTML = Lang.source1;
+    detailEl.createEl('li').innerHTML = Lang.source2;
+
+    this.contentEl.append(detailsEl);
 
     // *** EVENTS ****
 
@@ -278,14 +274,6 @@ class SynonymSidebarView extends ItemView {
         navigator.clipboard.writeText('*' + searchboxEl.value + '* 🔅' + event.target.textContent);
         new Notice(Lang.definitionCopied, 2000);
       }
-    }
-
-    expandHelpEl.onclick = () => {
-      this.expandHelp(true);
-    }
-
-    helpEl.onclick = () => {
-      this.expandHelp(false);
     }
     
     // RENDER functions
@@ -370,17 +358,6 @@ class SynonymSidebarView extends ItemView {
   }
 
   /* INTERNAL FUNCTIONS */
-
-  expandHelp(isExpanded) {
-    if (isExpanded) {
-      this.expandHelpEl.hide();
-      this.helpEl.show();
-    } else {
-      this.helpEl.hide();
-      this.expandHelpEl.show();
-    }
-    this.helpExpanded = isExpanded;
-  }
 
   showHistory() {
     this.historyEl.empty();
