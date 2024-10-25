@@ -70,7 +70,7 @@
   }
 
   :is(.syn-definition, .syn-example) {
-    margin: 4px 0 8px;
+    margin: 2px 0 4px;
     user-select: text !important;
     -webkit-user-select: text !important;
   }
@@ -152,3 +152,11 @@
   }
 }
 
+
+body:not(.is-mobile) {
+  .syn {
+    :is(.syn-word, .syn-definition) {
+      font-size: var(--font-smaller);
+    }
+  }
+}

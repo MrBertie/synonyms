@@ -57,7 +57,7 @@ class SynonymSidebarPlugin extends Plugin {
 
     this.registerView(
       SYNONYM_VIEW, 
-      (leaf) => (this.view = new SynonymSidebarView(leaf, this)),
+      (leaf) => new SynonymSidebarView(leaf, this),
     );
 
     this.addCommand({
@@ -65,11 +65,9 @@ class SynonymSidebarPlugin extends Plugin {
       name: 'Open sidebar',
       callback: this.activateView.bind(this),
     });
-
-    //this.app.workspace.onLayoutReady(this.activateView.bind(this));
-    
-    console.log('%c' + this.manifest.name + ' ' + this.manifest.version +
-      ' loaded', 'background-color: firebrick; padding:4px; border-radius:4px');
+    // biome-ignore lint: Loading indicator, runs once only; // ⚠️
+    console.log(`%c${this.manifest.name} ${this.manifest.version} loaded`, 
+      'background-color: firebrick; padding:4px; border-radius:4px');
   }
   
   onunload() {}
@@ -130,22 +128,20 @@ class SynonymSidebarView extends ItemView {
     }
     this.history = state.history ?? [];
     this.showHistory();
-    this.expandHelp(state.help ?? true);
     await super.setState(state, result);
   }
 
   // Save state to workspace
   getState() {
-    let state = super.getState();
+    const state = super.getState();
     state.lookup = this.searchboxEl.value;
     state.history = this.history;
-    state.help = this.helpExpanded;
     return state;
   }
 
   async onOpen() {
     let lookup = '';
-    let resultCache = [];
+    let moreSynonyms = [];
     
     // SEARCH BAR
     const rowEl = createDiv({ cls: 'search-row' });
@@ -179,11 +175,11 @@ class SynonymSidebarView extends ItemView {
     this.historyEl = historyEl;
     
     // SYNONYM VIEW
-    const searchingEl = this.contentEl.createDiv({
+    const searchingSynEl = this.contentEl.createDiv({
       text: Lang.searchingSyn,
       cls: 'syn-searching',
     });
-    searchingEl.hide();
+    searchingSynEl.hide();
     
     const synonymEl = this.contentEl.createDiv({ cls: 'syn-results'});
     
@@ -212,24 +208,40 @@ class SynonymSidebarView extends ItemView {
 
     // *** EVENTS ****
 
-    searchboxEl.onsearch = () => {
+    searchboxEl.onsearch = async () => {
       lookup = searchboxEl.value;
       searchboxEl.addClass('syn-active-word');
       if (lookup !== '') {
         introEl.hide();
-        searchingEl.show();
-        this.fetchSynonyms(lookup).then((results) => {
-          searchingEl.hide();
-          showSynonyms(results, synonymEl);
-          resultCache = results; // needed for the 'More..' button feature
-        });
-        searchingDefEl.show();
-        this.fetchDefinitions(lookup).then((word) => {
+        /** @type {TLookup} */
+        const cache = this.getFromHistory(lookup);
+
+        let synonyms = [];
+        if (cache?.synonyms) {
+          synonyms = cache.synonyms;
+        } else {
+          searchingSynEl.show();
+          synonyms = await this.fetchSynonyms(lookup);
+          searchingSynEl.hide();
+        }
+        if (synonyms) {
+          showSynonyms(synonyms, synonymEl);
+          moreSynonyms = synonyms; // needed for the 'More..' button feature
+        }
+
+        let definitions;  // JSON|null
+        if (cache?.definitions) {
+          definitions = cache.definitions;
+        } else {
+          searchingDefEl.show();
+          definitions = await this.fetchDefinitions(lookup);
           searchingDefEl.hide();
-          showDefinitions(word, definitionEl);
-          showFiller(definitionEl);
-        });
-        this.addToHistory(lookup);
+        }
+        if (definitions) {
+          showDefinitions(definitions, definitionEl);
+        }
+
+        this.addToHistory(lookup, synonyms, definitions); // existing entries will be ignored
         this.showHistory();
       }
     };
@@ -265,13 +277,13 @@ class SynonymSidebarView extends ItemView {
         this.currentWord(this.app, word);
       }
       if (event.target.className === 'syn-more') {
-        showSynonyms(resultCache, synonymEl, true);
+        showSynonyms(moreSynonyms, synonymEl, true);
       }
     }
 
     definitionEl.onclick = (event) => {
       if (event.target.className === 'syn-definition') {
-        navigator.clipboard.writeText('*' + searchboxEl.value + '* 🔅' + event.target.textContent);
+        navigator.clipboard.writeText(`*${searchboxEl.value}* 🔅${event.target.textContent}`);
         new Notice(Lang.definitionCopied, 2000);
       }
     }
@@ -281,7 +293,7 @@ class SynonymSidebarView extends ItemView {
 
     /**
      * Render the datamuse json results to HTML
-     * @param {Array<SynonymResult>} results list of synonyms, antonyms and similar words
+     * @param {Array<SynonymResults>} results list of synonyms, antonyms and similar words
      * @param {HTMLElement} showEl where to show the results
      * @param {boolean} all show all results?
      */
@@ -315,23 +327,23 @@ class SynonymSidebarView extends ItemView {
       showEl.empty();
       if (definition) {
         showEl.createDiv({ text: Lang.definitionsHdr.toUpperCase(), cls: 'syn-heading' });
-        definition.forEach((part) => {
+        for (const part of definition) {
           const partEl = showEl.createDiv({ text: part.partOfSpeech, cls: 'syn-heading' });
-          part.definitions.forEach((def) => {
+          for (const def of part.definitions) {
             partEl.createDiv({
               text: stripMarkup(def.definition),
               cls: 'syn-definition',
             });
             if (def.examples !== undefined) {
-              def.examples.forEach((example) => {
+              for (const example of def.examples) {
                 partEl.createDiv({
-                  text: '“' + stripMarkup(example) + '”',
+                  text: `“${stripMarkup(example)}”`,
                   cls: 'syn-example',
                 });
-              });
+              }
             }
-          });
-        });
+          }
+        }
       } else {
         showEl.createDiv({ text: Lang.definitionsHdr.toUpperCase(), cls: 'syn-none' });
       }
@@ -343,13 +355,9 @@ class SynonymSidebarView extends ItemView {
      * @returns {string} plain text
      */
     function stripMarkup(html) {
-      let doc = new DOMParser().parseFromString(html, 'text/html');
-      let text = doc.body.textContent ?? '';
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const text = doc.body.textContent ?? '';
       return text;
-    }
-
-    function showFiller(view) {
-      view.createDiv({ text: '🔅', cls: 'syn-searching' });
     }
   }
 
@@ -357,13 +365,28 @@ class SynonymSidebarView extends ItemView {
     this.unload();
   }
 
-  /* INTERNAL FUNCTIONS */
+  /* 🕒 HISTORY FUNCTIONS */
 
   showHistory() {
     this.historyEl.empty();
-    this.history.forEach((item) => {
-      this.historyEl.createEl('span', { text: item });
-    });
+    for (const item of this.history) {
+      this.historyEl.createEl('span', { text: item.lookup });
+    }
+  }
+  
+  addToHistory(lookup, synonyms, definitions) {
+    /** @type {TLookup} */
+    const newItem = { lookup, synonyms, definitions };
+    this.history = this.history.filter(item => lookup !== item.lookup); // no duplicates
+    this.history = [newItem, ...this.history]; // add to the top
+    if (this.history.length > this.settings.maxHistory) {
+      this.history = this.history.slice(0, this.settings.maxHistory);
+    }
+  }
+
+  getFromHistory(lookup) {
+    const cache = this.history.find((item) => item.lookup === lookup);
+    return cache;
   }
 
   clearHistory() {
@@ -372,13 +395,7 @@ class SynonymSidebarView extends ItemView {
     this.showHistory();
   }
 
-  addToHistory(lookup) {
-    this.history = this.history.filter(item => item !== lookup); // no duplicates
-    this.history = [lookup, ...this.history]; // add to the top
-    if (this.history.length > this.settings.maxHistory) {
-      this.history = this.history.slice(0, this.settings.maxHistory);
-    }
-  }
+  /* 📦 INTERNAL FUNCTIONS */
 
   /**
    * Get / Set the editor selection
@@ -424,15 +441,14 @@ class SynonymSidebarView extends ItemView {
 
   /**
    * Fetches the synonyms from Datamuse API
-   * @typedef {{Heading: string, Word: Array<string>}} SynonymResult
    * @param {string} lookup
-   * @returns {Array<SynonymResult>}
+   * @returns {Promise<Array>}
    */
   async fetchSynonyms(lookup) {
-    if (lookup in this.synonymCache) return this.synonymCache[lookup];
+    /** @type {Array<SynonymResults>} */
     let results = [];
     try {
-      let res = await Promise.all([
+      const res = await Promise.all([
         fetchUrl(Config.synUrl + Config.synonymArg + lookup),
         fetchUrl(Config.synUrl + Config.antonymArg + lookup),
         fetchUrl(Config.synUrl + Config.similarArg + lookup),
@@ -444,14 +460,14 @@ class SynonymSidebarView extends ItemView {
         { Heading: Lang.similarHdr, Words: res[2] },
       ];
     } catch (error) {
+      // biome-ignore lint: ; // ⚠️
       console.log(error);
     }
-    this.synonymCache[lookup] = results;
     return results;
     
     async function fetchUrl(url) {
       let result = null;
-      let response = await requestUrl(url);
+      const response = await requestUrl(url);
       if (response.status === 200) {
         result = await response.json;
       }
@@ -462,19 +478,18 @@ class SynonymSidebarView extends ItemView {
   /**
    * Fetch the word definition from Wikionary API
    * @param {string} word
-   * @returns {JSON|undefined}
+   * @returns {Promise<JSON|undefined>}
    */
   async fetchDefinitions(word) {
-    if (word in this.definitionCache) return this.definitionCache[word];
     try {
-      word = word.toLowerCase(); // online lookup requires lower case
-      let res = await requestUrl(Config.dictUrl + word);
+      const lookup = word.toLowerCase(); // online lookup requires lower case
+      const res = await requestUrl(Config.dictUrl + lookup);
       if (res.status === 200) {
-        let raw = await res.json;
-        this.definitionCache[word] = raw.en;
+        const raw = await res.json;
         return raw.en; // just the English results
       }
     } catch (error) {
+      // biome-ignore lint: ; // ⚠️
       console.log(error);
     }
     return undefined;
@@ -487,8 +502,8 @@ class SynonymSidebarView extends ItemView {
    * @returns {string} Check for empty!
    */
   firstXWords(sentence, count) {
-    const rgx = new RegExp('((\\s*\\S+){' + count + '})([\\s\\S]*)', 'gm');
-    let match = rgx.exec(sentence);
+    const rgx = new RegExp(`((\\s*\\S+){${count}})([\\s\\S]*)`, 'gm');
+    const match = rgx.exec(sentence);
     return match !== null ? match[1] : '';
   }
 }
@@ -496,3 +511,16 @@ class SynonymSidebarView extends ItemView {
 module.exports = {
   default: SynonymSidebarPlugin,
 };
+
+/* ✏️ TYPES */
+
+/**
+ * @typedef {{Heading: string, Words: Array<string>}} SynonymResults 
+ */ 
+
+/** 
+ * @typedef {Object} TLookup 
+ * @property {string} lookup
+ * @property {Array} synonyms
+ * @property {Array} definitions
+ */

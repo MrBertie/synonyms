@@ -5,8 +5,11 @@ Displays synonyms, antonyms, similar meanings, and definitions  in the right sid
 
 # How to install
 
-Download the latest **Synonym** [release](https://github.com/MrBertie/synonym/releases), unzip it, and drop the folder into your `{Obsidian Vault}/.obsidian/plugins` folder.  Edit the plugin folder name to remove the version number, e.g. `-v.0.1.1`, and then restart Obsidian.
-You will need to go to the *Plugin Settings* page in Obsidian and enable the plugin.
+Download the [latest version](https://github.com/MrBertie/synonyms/archive/refs/heads/main.zip) from this link, and unzip it.  
+You see a folder called `synonyms-main`; rename this folder as `synonyms` and then add it into your `{Obsidian Vault}/.obsidian/plugins` folder.  
+Restart Obsidian and go to the *Community Plugins Settings* page to enable the plugin.
+
+*Note: you can also click the `<>Code` button above and choose `Download.zip`*
 
 # How to use
 

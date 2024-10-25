@@ -1,7 +1,7 @@
 {
 	"id": "synonyms",
 	"name": "Synonyms",
-	"version": "0.2.1",
+	"version": "0.2.2",
 	"minAppVersion": "0.15.0",
 	"description": "Shows a list of synonyms and dictionary definitions in the right sidebar for the current word in the editor; click to insert.",
 	"author": "MrBertie",
